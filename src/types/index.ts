@@ -18,7 +18,9 @@ export interface Product {
   name: string;
   brand?: string;
   imageUrl?: string;
-  nutrition: NutritionData;
+  nutrition: NutritionData; // always per 100g (canonical basis used for scoring)
+  servingSize?: string; // human-readable, e.g. "15 g" (from the label, if known)
+  servingQuantity?: number; // serving size in grams, e.g. 15 (if known)
   additives: Additive[];
   dietaryFlags: string[];
   score: number;

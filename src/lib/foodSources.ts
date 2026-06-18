@@ -166,12 +166,24 @@ export async function fetchFromOpenFoodFacts(barcode: string): Promise<Product |
     const additives = parseAdditives(product.additives_tags || []);
     const dietaryFlags = parseDietaryFlags(product);
 
+    // Serving info is inconsistently populated in OFF; capture it when present so
+    // the UI can show "per serving" to match the product's label.
+    const servingQuantity =
+      typeof product.serving_quantity === 'number'
+        ? product.serving_quantity
+        : parseFloat(product.serving_quantity) || undefined;
+    const servingSize =
+      product.serving_size ||
+      (servingQuantity ? `${servingQuantity} g` : undefined);
+
     return {
       barcode,
       name: product.product_name || 'Unknown Product',
       brand: product.brands,
       imageUrl: product.image_url || product.image_front_url,
       nutrition,
+      servingSize,
+      servingQuantity: servingQuantity && servingQuantity > 0 ? servingQuantity : undefined,
       additives,
       dietaryFlags,
       score: calculateScore(nutrition, additives),

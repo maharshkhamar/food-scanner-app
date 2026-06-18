@@ -1,6 +1,7 @@
 'use client';
 
-import { Product, FitnessGoal } from '@/types';
+import { useState } from 'react';
+import { Product, FitnessGoal, NutritionData } from '@/types';
 import { getScoreColor, getScoreText } from '@/lib/score';
 import { getRecipesForGoal } from '@/lib/recipes';
 
@@ -13,6 +14,32 @@ export default function ProductDisplay({ product, goal }: ProductDisplayProps) {
   const scoreColor = getScoreColor(product.score);
   const scoreText = getScoreText(product.score);
   const recipes = getRecipesForGoal(goal, product.name);
+
+  // Product nutrition is stored per 100g. If the product has a known serving
+  // size, default to showing "per serving" (matches the label on the package).
+  const hasServing = !!product.servingQuantity;
+  const [basis, setBasis] = useState<'serving' | '100g'>(
+    hasServing ? 'serving' : '100g'
+  );
+
+  const factor =
+    basis === 'serving' && product.servingQuantity
+      ? product.servingQuantity / 100
+      : 1;
+
+  const displayed: NutritionData = {
+    protein: product.nutrition.protein * factor,
+    carbs: product.nutrition.carbs * factor,
+    sugar: product.nutrition.sugar * factor,
+    fiber: product.nutrition.fiber * factor,
+    fat: product.nutrition.fat * factor,
+    calories: product.nutrition.calories * factor,
+  };
+
+  const basisLabel =
+    basis === 'serving' && product.servingSize
+      ? `per serving (${product.servingSize})`
+      : 'per 100g';
 
   const goalLabels: Record<FitnessGoal, string> = {
     gain: 'Gain Muscle',
@@ -50,14 +77,37 @@ export default function ProductDisplay({ product, goal }: ProductDisplayProps) {
 
       {/* Nutrition Facts */}
       <div className="rounded-2xl bg-white p-6 shadow-lg">
-        <h3 className="mb-4 text-lg font-bold">Nutrition (per 100g)</h3>
+        <div className="mb-4 flex items-center justify-between gap-2">
+          <h3 className="text-lg font-bold">Nutrition</h3>
+          {hasServing && (
+            <div className="flex rounded-lg bg-gray-100 p-1 text-sm font-medium">
+              <button
+                onClick={() => setBasis('serving')}
+                className={`rounded-md px-3 py-1 transition-colors ${
+                  basis === 'serving' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500'
+                }`}
+              >
+                Serving
+              </button>
+              <button
+                onClick={() => setBasis('100g')}
+                className={`rounded-md px-3 py-1 transition-colors ${
+                  basis === '100g' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500'
+                }`}
+              >
+                100g
+              </button>
+            </div>
+          )}
+        </div>
+        <p className="mb-4 text-sm text-gray-500">Values shown {basisLabel}</p>
         <div className="grid grid-cols-2 gap-4">
-          <NutritionItem label="Protein" value={product.nutrition.protein} unit="g" color="bg-green-100" />
-          <NutritionItem label="Carbs" value={product.nutrition.carbs} unit="g" color="bg-yellow-100" />
-          <NutritionItem label="Sugar" value={product.nutrition.sugar} unit="g" color="bg-orange-100" />
-          <NutritionItem label="Fiber" value={product.nutrition.fiber} unit="g" color="bg-green-100" />
-          <NutritionItem label="Fat" value={product.nutrition.fat} unit="g" color="bg-red-100" />
-          <NutritionItem label="Calories" value={product.nutrition.calories} unit="kcal" color="bg-blue-100" />
+          <NutritionItem label="Protein" value={displayed.protein} unit="g" color="bg-green-100" />
+          <NutritionItem label="Carbs" value={displayed.carbs} unit="g" color="bg-yellow-100" />
+          <NutritionItem label="Sugar" value={displayed.sugar} unit="g" color="bg-orange-100" />
+          <NutritionItem label="Fiber" value={displayed.fiber} unit="g" color="bg-green-100" />
+          <NutritionItem label="Fat" value={displayed.fat} unit="g" color="bg-red-100" />
+          <NutritionItem label="Calories" value={displayed.calories} unit="kcal" color="bg-blue-100" />
         </div>
       </div>
 
