@@ -47,7 +47,22 @@ export default function BarcodeScanner({ onScan, onClose }: BarcodeScannerProps)
         console.error('Scanner error:', err);
         isScanningRef.current = false;
         setIsScanning(false);
-        setError('Could not access camera. Please allow camera permissions.');
+
+        // Give specific guidance based on why the camera failed
+        const name = err?.name || '';
+        const isSecure =
+          typeof window !== 'undefined' &&
+          (window.isSecureContext || window.location.hostname === 'localhost');
+
+        if (!isSecure) {
+          setError('Camera needs a secure (https) connection. Open this app via its https link.');
+        } else if (name === 'NotAllowedError' || name === 'PermissionDeniedError') {
+          setError('Camera permission was blocked. Allow camera access in your browser settings, then try again.');
+        } else if (name === 'NotFoundError' || name === 'DevicesNotFoundError') {
+          setError('No camera found on this device. Try the "Search whole foods" option instead.');
+        } else {
+          setError('Could not start the camera. Make sure no other app is using it, then try again.');
+        }
       });
 
     return () => {
