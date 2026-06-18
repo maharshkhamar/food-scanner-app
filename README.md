@@ -1,36 +1,60 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Food Scanner App
+
+A web app that scans food barcodes and provides nutritional analysis with health scores.
+
+## Features
+
+- **Barcode Scanning**: Use your camera to scan product barcodes
+- **Nutrition Analysis**: View protein, carbs, sugar, fiber, fat, and calories per 100g
+- **Health Score**: 0-100 score based on nutritional value and additives
+- **Additive Classification**: High, medium, and low risk additive flags
+- **Dietary Flags**: Vegan, vegetarian, gluten-free, kosher, halal, organic detection
+- **Recipe Suggestions**: Get recipe ideas based on your fitness goal
+- **Scan History**: Automatically saves your recent scans
+
+## Tech Stack
+
+- Next.js 16 with TypeScript
+- Tailwind CSS
+- html5-qrcode for barcode scanning
+- Open Food Facts API for product data
 
 ## Getting Started
 
-First, run the development server:
-
 ```bash
+# Install dependencies
+npm install
+
+# Run dev server
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+
+# Open http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## How It Works
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+1. Select your fitness goal (Gain Muscle, Lose Fat, or Maintain Weight)
+2. Tap "Scan" and point camera at a food product barcode
+3. View nutritional breakdown and health score
+4. See recipe suggestions based on your goal
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Scoring Algorithm
 
-## Learn More
+The health score (0-100) is calculated based on:
+- **Protein**: +5 to +20 points
+- **Fiber**: +5 to +15 points
+- **Sugar**: -5 to -20 points penalty
+- **Simple carbs**: -10 points if high carbs + low fiber
+- **Additives**: -2 to -5 points per additive based on risk level
 
-To learn more about Next.js, take a look at the following resources:
+## Data Source
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Product data is fetched from [Open Food Facts](https://world.openfoodfacts.org/), a free and open database of food products from around the world.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Future Enhancements
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- User authentication
+- Daily nutrition tracking
+- Mobile app (React Native)
+- AI-powered recipe generation
+- Compare products side-by-side
